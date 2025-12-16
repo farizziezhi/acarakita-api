@@ -14,30 +14,34 @@ const SavedEvent = model('SavedEvent', EventSchema)
 async function seedEvents() {
   try {
     console.log('🌱 Starting events seeder...')
-    
+
     // Connect to MongoDB
-    await mongoose.connect('mongodb+srv://farizzi79_db_user:10mFcWQyRouQ74Zt@database-event.ih6wclg.mongodb.net/?retryWrites=true&w=majority&appName=database-event')
+    const mongoUrl = process.env.MONGO_URL
+    if (!mongoUrl) {
+      throw new Error('MONGO_URL not found in environment variables')
+    }
+    await mongoose.connect(mongoUrl)
     console.log('✅ Connected to MongoDB')
-    
+
     // Your existing user IDs converted to ObjectId
     const userIds = [
       new mongoose.Types.ObjectId('68ef239da753980278891d9b'), // mail@mail.com
       new mongoose.Types.ObjectId('68ef251aa753980278891d9f'), // user@mail.com
       new mongoose.Types.ObjectId('68ef259da753980278891da3'), // user123@mail.com
       new mongoose.Types.ObjectId('68ef265aa753980278891da7'), // user1234@mail.com
-      new mongoose.Types.ObjectId('68ef26ada753980278891daa')  // user12@mail.com
+      new mongoose.Types.ObjectId('68ef26ada753980278891daa'), // user12@mail.com
     ]
 
     const eventsData = []
-    
+
     // Create 30 events for first user (for pagination testing)
     for (let i = 1; i <= 30; i++) {
       eventsData.push({
         title: `Event ${i}`,
-        date: new Date(2024, 11, i % 31 + 1), // December 2024
+        date: new Date(2024, 11, (i % 31) + 1), // December 2024
         place: `Location ${i}`,
         notes: `Notes for event ${i}`,
-        userId: userIds[0]
+        userId: userIds[0],
       })
     }
 
@@ -48,7 +52,7 @@ async function seedEvents() {
         date: new Date(2025, 0, i), // January 2025
         place: `Office ${i}`,
         notes: `Meeting notes ${i}`,
-        userId: userIds[1]
+        userId: userIds[1],
       })
     }
 
@@ -59,19 +63,19 @@ async function seedEvents() {
         date: new Date(2025, 1, i), // February 2025
         place: `Hall ${i}`,
         notes: `Conference notes ${i}`,
-        userId: userIds[2]
+        userId: userIds[2],
       })
     }
 
     await SavedEvent.create(eventsData)
-    
+
     console.log('✅ Created 45 test events')
     console.log('📧 Events distributed:')
     console.log('  - mail@mail.com: 30 events')
     console.log('  - user@mail.com: 10 events')
     console.log('  - user123@mail.com: 5 events')
     console.log('🔍 Test pagination with mail@mail.com (30 events)')
-    
+
     await mongoose.disconnect()
     process.exit(0)
   } catch (error) {

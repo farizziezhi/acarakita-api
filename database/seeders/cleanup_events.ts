@@ -14,16 +14,20 @@ const SavedEvent = model('SavedEvent', EventSchema)
 async function cleanupEvents() {
   try {
     console.log('🧹 Starting cleanup...')
-    
+
     // Connect to MongoDB
-    await mongoose.connect('mongodb+srv://farizzi79_db_user:10mFcWQyRouQ74Zt@database-event.ih6wclg.mongodb.net/?retryWrites=true&w=majority&appName=database-event')
+    const mongoUrl = process.env.MONGO_URL
+    if (!mongoUrl) {
+      throw new Error('MONGO_URL not found in environment variables')
+    }
+    await mongoose.connect(mongoUrl)
     console.log('✅ Connected to MongoDB')
-    
+
     // Delete all events
     const result = await SavedEvent.deleteMany({})
-    
+
     console.log(`✅ Deleted ${result.deletedCount} events`)
-    
+
     await mongoose.disconnect()
     process.exit(0)
   } catch (error) {

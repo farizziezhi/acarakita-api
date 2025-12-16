@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cari Event / AcaraKita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              xblack: '#000000',
+              xdark: '#16181c',
+              xgray: '#2F3336',
+              xblue: '#1D9BF0',
+              xtext: '#E7E9EA',
+              xtextgray: '#71767B',
+            },
+            fontFamily: {
+              sans: [
+                'system-ui',
+                '-apple-system',
+                'BlinkMacSystemFont',
+                'Segoe UI',
+                'Roboto',
+                'Ubuntu',
+                'Helvetica Neue',
+                'sans-serif',
+              ],
+            },
+          },
+        },
+      }
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      if (!localStorage.getItem('token')) {
+        window.location.href = 'login.html'
+      }
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body class="bg-xblack text-xtext min-h-screen overflow-x-hidden mb-16 md:mb-0">
+    <div class="container mx-auto max-w-[1300px] flex min-h-screen">
+      <!-- LEFT SIDEBAR (Hidden on Mobile) -->
+      <header
+        class="hidden md:flex w-[80px] xl:w-[275px] h-screen sticky top-0 flex-col justify-between px-2 xl:px-4 py-4 border-r border-xgray z-50"
+      >
+        <div class="flex flex-col space-y-4">
+          <div
+            class="p-3 w-fit hover:bg-[#181818] rounded-full transition-colors cursor-pointer"
+            onclick="window.location.href='dashboard.html'"
+          >
+            <span class="text-3xl font-bold text-xtext">A</span>
+          </div>
+
+          <nav class="space-y-2">
+            <button
+              onclick="window.location.href='dashboard.html'"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-house text-2xl text-xtextgray group-hover:text-xtext"></i>
+              <span class="hidden xl:inline text-xl text-xtextgray group-hover:text-xtext"
+                >Beranda</span
+              >
+            </button>
+
+            <!-- Calendar -->
+            <button
+              onclick="window.location.href='dashboard.html?view=calendar'"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-calendar text-2xl text-xtextgray group-hover:text-xtext"></i>
+              <span class="hidden xl:inline text-xl text-xtextgray group-hover:text-xtext"
+                >Kalender</span
+              >
+            </button>
+
+            <button
+              onclick="window.location.href='graphql.html'"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-magnifying-glass text-2xl text-xtext font-bold"></i>
+              <span class="hidden xl:inline text-xl text-xtext font-bold">Cari Event</span>
+            </button>
+
+            <button
+              onclick="window.location.href='profile.html'"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-user text-2xl text-xtextgray group-hover:text-xtext"></i>
+              <span class="hidden xl:inline text-xl text-xtextgray group-hover:text-xtext"
+                >Profil</span
+              >
+            </button>
+          </nav>
+        </div>
+
+        <div
+          onclick="logout()"
+          class="p-3 hover:bg-[#181818] rounded-full cursor-pointer flex items-center gap-3 transition-colors mb-4"
+        >
+          <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-user text-white"></i>
+          </div>
+          <div class="hidden xl:block flex-1">
+            <p class="font-bold text-sm">Akun Saya</p>
+            <p class="text-xtextgray text-sm">@logout</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- MIDDLE COLUMN (SEARCH CONTENT) -->
+      <main class="flex-1 border-r border-xgray max-w-[600px] w-full">
+        <!-- Sticky Header with Search Bar -->
+        <div
+          class="sticky top-0 bg-xblack/80 backdrop-blur-md border-b border-xgray z-40 px-4 py-3"
+        >
+          <div
+            class="bg-xgray rounded-full flex items-center px-4 py-2 focus-within:bg-black focus-within:ring-1 focus-within:ring-xblue group border border-transparent focus-within:border-xblue transition-colors"
+          >
+            <i
+              class="fa-solid fa-magnifying-glass text-xtextgray group-focus-within:text-xblue"
+            ></i>
+            <input
+              type="text"
+              placeholder="Cari di AcaraKita"
+              class="bg-transparent border-none outline-none ml-3 text-xtext placeholder-xtextgray w-full"
+              readonly
+            />
+          </div>
+          <!-- Note: Current logic separates query by form, so this unified search bar is visual only for header consistency, actual search is below -->
+        </div>
+
+        <div class="p-4">
+          <h1 class="text-xl font-bold mb-4 px-2">Pencarian Lanjutan (GraphQL)</h1>
+
+          <!-- Search Form - Styled as a "Filter Card" -->
+          <div class="bg-black border border-xgray rounded-2xl p-4 mb-6">
+            <!-- Field Filters -->
+            <div class="flex flex-wrap gap-2 mb-4">
+              <label class="cursor-pointer select-none">
+                <input type="checkbox" id="fieldTitle" checked class="peer sr-only" />
+                <span
+                  class="px-3 py-1 rounded-full bg-xgray text-xtextgray text-sm font-bold peer-checked:bg-xblue peer-checked:text-white transition"
+                  >Judul</span
+                >
+              </label>
+              <label class="cursor-pointer select-none">
+                <input type="checkbox" id="fieldDate" checked class="peer sr-only" />
+                <span
+                  class="px-3 py-1 rounded-full bg-xgray text-xtextgray text-sm font-bold peer-checked:bg-xblue peer-checked:text-white transition"
+                  >Tanggal</span
+                >
+              </label>
+              <label class="cursor-pointer select-none">
+                <input type="checkbox" id="fieldPlace" checked class="peer sr-only" />
+                <span
+                  class="px-3 py-1 rounded-full bg-xgray text-xtextgray text-sm font-bold peer-checked:bg-xblue peer-checked:text-white transition"
+                  >Lokasi</span
+                >
+              </label>
+              <label class="cursor-pointer select-none">
+                <input type="checkbox" id="fieldNotes" checked class="peer sr-only" />
+                <span
+                  class="px-3 py-1 rounded-full bg-xgray text-xtextgray text-sm font-bold peer-checked:bg-xblue peer-checked:text-white transition"
+                  >Catatan</span
+                >
+              </label>
+            </div>
+
+            <form id="searchForm" class="flex flex-col gap-4">
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <label class="text-xs text-xtextgray ml-2 mb-1 block">Bulan</label>
+                  <select
+                    id="month"
+                    class="w-full bg-black border border-xgray rounded text-xtext px-3 py-2 outline-none focus:border-xblue"
+                  >
+                    <option value="">Semua</option>
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <label class="text-xs text-xtextgray ml-2 mb-1 block">Tahun</label>
+                  <input
+                    type="number"
+                    id="year"
+                    placeholder="2024"
+                    class="w-full bg-black border border-xgray rounded text-xtext px-3 py-2 outline-none focus:border-xblue"
+                    min="2020"
+                    max="2030"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                id="searchBtn"
+                class="bg-xblue text-white font-bold py-2 rounded-full hover:bg-blue-600 transition disabled:opacity-50"
+              >
+                Explore
+              </button>
+            </form>
+          </div>
+
+          <div class="border-b border-xgray pb-2 mb-2">
+            <h2 class="font-bold text-lg">
+              Hasil Pencarian
+              <span id="resultCount" class="text-xblue font-normal text-sm ml-2"></span>
+            </h2>
+          </div>
+
+          <div id="results" class="space-y-0">
+            <!-- Results injected as Tweet-like items -->
+          </div>
+        </div>
+      </main>
+
+      <!-- RIGHT SIDEBAR (TRENDS) -->
+      <aside class="hidden lg:block w-[350px] pl-8 py-4 space-y-6 h-screen sticky top-0">
+        <div class="bg-xdark rounded-xl border border-xgray overflow-hidden p-4">
+          <h2 class="font-bold text-xl mb-2">Trends for you</h2>
+          <div class="space-y-4">
+            <div class="hover:bg-white/5 p-2 -mx-2 rounded pointer-events-none">
+              <p class="text-xs text-xtextgray">Trending in Indonesia</p>
+              <p class="font-bold">#AcaraKitaLaunching</p>
+              <p class="text-xs text-xtextgray">2,042 posts</p>
+            </div>
+            <div class="hover:bg-white/5 p-2 -mx-2 rounded pointer-events-none">
+              <p class="text-xs text-xtextgray">Teknologi · Trending</p>
+              <p class="font-bold">GraphQL</p>
+              <p class="text-xs text-xtextgray">54K posts</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <!-- MOBILE BOTTOM NAV -->
+    <nav
+      class="fixed bottom-0 w-full bg-black/90 backdrop-blur-md border-t border-xgray flex justify-around items-center py-3 z-50 md:hidden px-2"
+    >
+      <a href="dashboard.html" class="text-xtextgray flex flex-col items-center"
+        ><i class="fa-solid fa-house text-xl"></i
+      ></a>
+      <a href="dashboard.html?view=calendar" class="text-xtextgray flex flex-col items-center"
+        ><i class="fa-solid fa-calendar text-xl"></i
+      ></a>
+
+      <button
+        onclick="window.location.href='dashboard.html'"
+        class="text-white bg-xblue rounded-full w-12 h-12 flex items-center justify-center -mt-4 shadow-lg shadow-blue-500/30"
+      >
+        <i class="fa-solid fa-plus text-xl"></i>
+      </button>
+
+      <a href="graphql.html" class="text-xtext flex flex-col items-center"
+        ><i class="fa-solid fa-magnifying-glass text-xl"></i
+      ></a>
+      <a href="profile.html" class="text-xtextgray flex flex-col items-center"
+        ><i class="fa-solid fa-user text-xl"></i
+      ></a>
+    </nav>
+
+    <script src="js/api.js"></script>
+    <script>
+      // TOAST NOTIFICATION SYSTEM
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div')
+        toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white text-sm font-bold shadow-lg transition-all duration-300 opacity-0 translate-y-4 z-[70] ${type === 'error' ? 'bg-red-500 shadow-red-500/20' : 'bg-xblue shadow-blue-500/20'}`
+        toast.textContent = message
+        document.body.appendChild(toast)
+
+        requestAnimationFrame(() => {
+          toast.className = toast.className.replace(
+            'opacity-0 translate-y-4',
+            'opacity-100 translate-y-0'
+          )
+        })
+
+        setTimeout(() => {
+          toast.className += ' opacity-0 translate-y-4'
+          setTimeout(() => toast.remove(), 300)
+        }, 3000)
+      }
+
+      // --- EXACT ORIGINAL LOGIC COPIED & ADAPTED FOR NEW DOM ---
+      let events = []
+
+      document.getElementById('searchForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        const searchBtn = document.getElementById('searchBtn')
+        searchBtn.disabled = true
+        searchBtn.textContent = 'Mencari...'
+
+        try {
+          const fields = ['id']
+          // Re-mapped IDs (logic remains same)
+          if (document.getElementById('fieldTitle').checked) fields.push('title')
+          if (document.getElementById('fieldDate').checked) fields.push('date')
+          if (document.getElementById('fieldPlace').checked) fields.push('place')
+          if (document.getElementById('fieldNotes').checked) fields.push('notes')
+
+          const fieldsStr = fields.join('\n            ')
+
+          const month = document.getElementById('month').value
+          const year = document.getElementById('year').value
+
+          let args = ''
+          if (month && year) args = `(month: ${parseInt(month)}, year: ${parseInt(year)})`
+          else if (month) args = `(month: ${parseInt(month)})`
+          else if (year) args = `(year: ${parseInt(year)})`
+
+          const query = `{
+          myEvents${args} {
+            ${fieldsStr}
+          }
+        }`
+
+          console.log('GraphQL Query:', query)
+          const response = await graphqlAPI.query(query)
+          console.log('GraphQL Response:', response)
+
+          if (response.data && response.data.myEvents) {
+            events = response.data.myEvents.map((event) => ({
+              _id: event.id,
+              title: event.title,
+              date: event.date,
+              place: event.place,
+              notes: event.notes,
+            }))
+            renderResults()
+          } else {
+            events = []
+            renderResults()
+          }
+        } catch (error) {
+          console.error('GraphQL query gagal:', error)
+          console.error('Detail error:', error.response?.data)
+          showToast(
+            'Gagal mengambil acara: ' +
+              (error.response?.data?.errors?.[0]?.message || error.message),
+            'error'
+          )
+          events = []
+          renderResults()
+        } finally {
+          searchBtn.disabled = false
+          searchBtn.textContent = 'Explore'
+        }
+      })
+
+      function renderResults() {
+        const resultsDiv = document.getElementById('results')
+        const resultCount = document.getElementById('resultCount')
+
+        resultCount.textContent = `(${events.length})`
+
+        if (events.length === 0) {
+          resultsDiv.innerHTML = `
+          <div class="text-center py-12">
+            <p class="text-xtextgray">Tidak ada acara ditemukan.</p>
+          </div>
+        `
+          return
+        }
+
+        // X-Style Result Item
+        resultsDiv.innerHTML = events
+          .map(
+            (event) => `
+        <div class="border-b border-xgray p-4 hover:bg-[#080808] transition cursor-pointer">
+          <div class="flex space-x-3">
+             <div class="flex-shrink-0">
+                  <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+                       A
+                  </div>
+             </div>
+             <div class="flex-1">
+                 <div class="flex items-center gap-1 text-xtextgray text-sm">
+                      ${event.title ? `<span class="font-bold text-xtext text-base">${event.title}</span>` : '<span class="italic text-xtextgray">Tanpa Judul</span>'}
+                      <span>@result</span>
+                      <span>·</span>
+                      <span>GraphQL</span>
+                 </div>
+                 
+                 <div class="mt-1 text-xtext">
+                    ${event.notes ? `<p>${event.notes}</p>` : ''}
+                    ${event.place ? `<p class="text-xblue mt-1 text-sm"><i class="fa-solid fa-location-dot"></i> ${event.place}</p>` : ''}
+                    ${event.date ? `<p class="text-xtextgray text-sm mt-1">${new Date(event.date).toLocaleDateString('id-ID')} ${new Date(event.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</p>` : ''}
+                 </div>
+             </div>
+          </div>
+        </div>
+      `
+          )
+          .join('')
+      }
+
+      function logout() {
+        localStorage.removeItem('token')
+        window.location.href = 'login.html'
+      }
+
+      renderResults()
+    </script>
+  </body>
+</html>

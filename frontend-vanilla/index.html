@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AcaraKita - Manajemen Acara</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              xblack: '#000000',
+              xdark: '#16181c',
+              xgray: '#2F3336',
+              xblue: '#1D9BF0',
+              xtext: '#E7E9EA',
+              xtextgray: '#71767B',
+            },
+            fontFamily: {
+              sans: [
+                'system-ui',
+                '-apple-system',
+                'BlinkMacSystemFont',
+                'Segoe UI',
+                'Roboto',
+                'Ubuntu',
+                'Helvetica Neue',
+                'sans-serif',
+              ],
+            },
+          },
+        },
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-xblack text-xtext font-sans">
+    <!-- Header -->
+    <header class="bg-xblack/90 backdrop-blur-md sticky top-0 z-50 border-b border-xgray">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 flex items-center justify-center">
+            <!-- Replaced "A" Box with a text logo for cleaner look, or keep the box but styled dark -->
+            <span class="text-xtext font-bold text-2xl">A</span>
+          </div>
+          <span class="text-xl font-bold text-xtext">AcaraKita</span>
+        </div>
+
+        <div class="flex space-x-4">
+          <button
+            onclick="window.location.href='login.html'"
+            class="px-4 py-1.5 text-xtext font-bold text-sm hover:bg-white/10 rounded-full transition-colors"
+          >
+            Masuk
+          </button>
+          <button
+            onclick="window.location.href='register.html'"
+            class="px-5 py-1.5 bg-xtext text-black font-bold text-sm rounded-full hover:bg-gray-200 transition-colors"
+          >
+            Daftar
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="max-w-7xl mx-auto px-4 py-16 md:py-24">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h1 class="text-5xl md:text-6xl font-bold text-xtext mb-8 leading-tight">
+            Atur acaramu dengan mudah.
+          </h1>
+          <p class="text-xl text-xtextgray mb-10 leading-relaxed">
+            Bergabunglah dengan ribuan orang yang menyederhanakan manajemen acara mereka dengan
+            AcaraKita.
+          </p>
+
+          <button
+            onclick="window.location.href='register.html'"
+            class="px-8 py-3 bg-xblue text-white text-lg font-bold rounded-full hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+          >
+            Mulai
+          </button>
+        </div>
+
+        <div class="relative mt-8 md:mt-0">
+          <!-- Card Container -->
+          <div class="bg-xdark border border-xgray rounded-2xl p-6 relative z-10">
+            <div class="space-y-4">
+              <!-- Event Item 1 -->
+              <div
+                class="flex items-start space-x-4 p-4 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group"
+              >
+                <div
+                  class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0"
+                >
+                  <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-center">
+                    <p class="font-bold text-xtext group-hover:underline decoration-xtext">
+                      Rapat Tim
+                    </p>
+                    <span class="text-xs text-xtextgray">2j</span>
+                  </div>
+                  <p class="text-xtextgray text-sm mt-1">Hari ini pukul 14:00</p>
+                </div>
+              </div>
+
+              <!-- Event Item 2 -->
+              <div
+                class="flex items-start space-x-4 p-4 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group"
+              >
+                <div
+                  class="w-10 h-10 rounded-full bg-xblue/20 flex items-center justify-center shrink-0"
+                >
+                  <div class="w-3 h-3 bg-xblue rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-center">
+                    <p class="font-bold text-xtext group-hover:underline decoration-xtext">
+                      Peluncuran Produk
+                    </p>
+                    <span class="text-xs text-xtextgray">1h</span>
+                  </div>
+                  <p class="text-xtextgray text-sm mt-1">Besok pukul 10:00</p>
+                </div>
+              </div>
+
+              <!-- Event Item 3 -->
+              <div
+                class="flex items-start space-x-4 p-4 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group"
+              >
+                <div
+                  class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center shrink-0"
+                >
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-center">
+                    <p class="font-bold text-xtext group-hover:underline decoration-xtext">
+                      Presentasi Klien
+                    </p>
+                    <span class="text-xs text-xtextgray">4j</span>
+                  </div>
+                  <p class="text-xtextgray text-sm mt-1">Jumat pukul 15:00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Background Blobs (Darkened) -->
+          <div class="absolute -top-4 -right-4 w-32 h-32 bg-xblue/20 blur-2xl rounded-full"></div>
+          <div
+            class="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 blur-2xl rounded-full"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div id="features" class="mt-40 border-t border-xgray pt-20">
+        <h2 class="text-4xl font-bold text-center text-xtext mb-16">Semua yang kamu butuhkan.</h2>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Feature 1 -->
+          <div
+            class="bg-black border border-xgray p-8 rounded-2xl hover:bg-white/5 transition-colors group"
+          >
+            <div
+              class="w-12 h-12 rounded-full border border-xgray flex items-center justify-center mb-6 text-2xl group-hover:bg-xblue/10 group-hover:border-xblue transition-colors"
+            >
+              📅
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-xtext">Penjadwalan Mudah</h3>
+            <p class="text-xtextgray leading-relaxed">
+              Buat dan kelola acara hanya dengan beberapa klik. Atur tanggal, waktu, dan lokasi
+              dengan mudah.
+            </p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div
+            class="bg-black border border-xgray p-8 rounded-2xl hover:bg-white/5 transition-colors group"
+          >
+            <div
+              class="w-12 h-12 rounded-full border border-xgray flex items-center justify-center mb-6 text-2xl group-hover:bg-xblue/10 group-hover:border-xblue transition-colors"
+            >
+              🔔
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-xtext">Pengingat Cerdas</h3>
+            <p class="text-xtextgray leading-relaxed">
+              Jangan pernah melewatkan acara dengan notifikasi dan pengingat cerdas yang disesuaikan
+              dengan jadwalmu.
+            </p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div
+            class="bg-black border border-xgray p-8 rounded-2xl hover:bg-white/5 transition-colors group"
+          >
+            <div
+              class="w-12 h-12 rounded-full border border-xgray flex items-center justify-center mb-6 text-2xl group-hover:bg-xblue/10 group-hover:border-xblue transition-colors"
+            >
+              📊
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-xtext">Dashboard Analitik</h3>
+            <p class="text-xtextgray leading-relaxed">
+              Lacak acaramu dengan statistik dan wawasan detail untuk tetap terorganisir dan
+              produktif.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="mt-32 text-center pb-20">
+        <h2 class="text-4xl font-bold text-xtext mb-6">Siap untuk terorganisir?</h2>
+        <p class="text-xl text-xtextgray mb-10">Mulai kelola acaramu hari ini.</p>
+        <button
+          onclick="window.location.href='register.html'"
+          class="px-10 py-4 bg-xtext text-black text-lg font-bold rounded-full hover:bg-gray-200 transition-colors"
+        >
+          Mulai Sekarang
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-xgray py-8 mt-12">
+      <div class="max-w-7xl mx-auto px-4 text-center text-xtextgray text-sm">
+        <p>&copy; 2025 AcaraKita. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

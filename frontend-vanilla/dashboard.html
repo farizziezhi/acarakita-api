@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beranda / AcaraKita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              xblack: '#000000',
+              xdark: '#16181c',
+              xgray: '#2F3336',
+              xblue: '#1D9BF0',
+              xtext: '#E7E9EA',
+              xtextgray: '#71767B',
+            },
+            fontFamily: {
+              sans: [
+                'system-ui',
+                '-apple-system',
+                'BlinkMacSystemFont',
+                'Segoe UI',
+                'Roboto',
+                'Ubuntu',
+                'Helvetica Neue',
+                'sans-serif',
+              ],
+            },
+          },
+        },
+      }
+    </script>
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      if (!localStorage.getItem('token')) {
+        window.location.href = 'login.html'
+      }
+    </script>
+    <style>
+      /* Custom Scrollbar for X feel */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body class="bg-xblack text-xtext min-h-screen overflow-x-hidden mb-16 md:mb-0">
+    <div class="container mx-auto max-w-[1300px] flex min-h-screen">
+      <!-- LEFT SIDEBAR (Hidden on Mobile) -->
+      <header
+        class="hidden md:flex w-[80px] xl:w-[275px] h-screen sticky top-0 flex-col justify-between px-2 xl:px-4 py-4 border-r border-xgray z-50"
+      >
+        <div class="flex flex-col space-y-4">
+          <!-- Logo -->
+          <div class="p-3 w-fit hover:bg-[#181818] rounded-full transition-colors cursor-pointer">
+            <span class="text-3xl font-bold text-xtext">A</span>
+          </div>
+
+          <!-- Nav Items -->
+          <nav class="space-y-2">
+            <!-- Home (Upcoming) -->
+            <button
+              id="btnUpcoming"
+              onclick="switchView('upcoming')"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-house text-2xl group-hover:text-xtext text-xtext"></i>
+              <span class="hidden xl:inline text-xl font-bold group-hover:text-xtext">Beranda</span>
+            </button>
+
+            <!-- Calendar -->
+            <button
+              id="btnCalendar"
+              onclick="switchView('calendar')"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-calendar text-2xl group-hover:text-xtext text-xtextgray"></i>
+              <span class="hidden xl:inline text-xl text-xtextgray group-hover:text-xtext"
+                >Kalender</span
+              >
+            </button>
+
+            <!-- Explore/Search -->
+            <button
+              onclick="window.location.href='graphql.html'"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i
+                class="fa-solid fa-magnifying-glass text-2xl text-xtextgray group-hover:text-xtext"
+              ></i>
+              <span class="hidden xl:inline text-xl text-xtextgray group-hover:text-xtext"
+                >Cari Event</span
+              >
+            </button>
+
+            <!-- Profile -->
+            <button
+              onclick="window.location.href='profile.html'"
+              class="w-full flex items-center gap-4 p-3 rounded-full hover:bg-[#181818] transition-colors group"
+            >
+              <i class="fa-solid fa-user text-2xl text-xtextgray group-hover:text-xtext"></i>
+              <span class="hidden xl:inline text-xl text-xtextgray group-hover:text-xtext"
+                >Profil</span
+              >
+            </button>
+          </nav>
+
+          <!-- Post Button -->
+          <button
+            onclick="showAddModal()"
+            class="bg-xblue text-white rounded-full p-4 xl:py-3 xl:px-20 font-bold text-lg hover:bg-blue-600 transition-colors shadow-lg mt-4"
+          >
+            <i class="fa-solid fa-plus xl:hidden"></i>
+            <span class="hidden xl:inline">Posting</span>
+          </button>
+        </div>
+
+        <!-- User Profile (Bottom) -->
+        <div
+          onclick="logout()"
+          class="p-3 hover:bg-[#181818] rounded-full cursor-pointer flex items-center gap-3 transition-colors mb-4"
+        >
+          <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-user text-white"></i>
+          </div>
+          <div class="hidden xl:block flex-1">
+            <p class="font-bold text-sm">Akun Saya</p>
+            <p class="text-xtextgray text-sm">@logout</p>
+          </div>
+          <i class="fa-solid fa-ellipsis hidden xl:block"></i>
+        </div>
+      </header>
+
+      <!-- MIDDLE COLUMN (FEED) -->
+      <main class="flex-1 border-r border-xgray max-w-[600px] w-full">
+        <!-- Sticky Header -->
+        <div
+          class="sticky top-0 bg-xblack/80 backdrop-blur-md border-b border-xgray z-40 px-4 py-3 cursor-pointer"
+        >
+          <h2 id="pageTitle" class="text-xl font-bold">Beranda</h2>
+        </div>
+
+        <!-- Composer Area -->
+        <div class="border-b border-xgray p-4 flex gap-4">
+          <div
+            class="w-10 h-10 bg-gray-500 rounded-full flex-shrink-0 flex items-center justify-center"
+          >
+            <i class="fa-solid fa-user text-white"></i>
+          </div>
+          <div class="flex-1">
+            <input
+              type="text"
+              placeholder="Apa yang sedang terjadi?!"
+              onclick="showAddModal()"
+              class="w-full bg-transparent text-xl placeholder-xtextgray outline-none mb-3 cursor-text"
+              readonly
+            />
+            <div class="flex justify-between items-center border-t border-xgray pt-3">
+              <div class="flex gap-4 text-xblue">
+                <i class="fa-regular fa-image cursor-pointer"></i>
+                <i class="fa-solid fa-gif cursor-pointer"></i>
+                <i class="fa-solid fa-list cursor-pointer"></i>
+                <i class="fa-regular fa-face-smile cursor-pointer"></i>
+                <i class="fa-solid fa-location-dot cursor-pointer"></i>
+              </div>
+              <button
+                onclick="showAddModal()"
+                class="bg-xblue text-white px-5 py-1.5 rounded-full font-bold text-sm hover:bg-blue-600 transition-colors opacity-50 cursor-not-allowed"
+              >
+                Posting
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOBILE WIDGETS (Weather & Recs) - Visible only on Mobile/Tablet -->
+        <div class="lg:hidden border-b border-xgray bg-[#080808]">
+          <!-- Mobile Weather -->
+          <div id="mobileWeather" class="p-4 border-b border-xgray/50 hidden">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-sm text-xtext">
+                    Cuaca di <span id="mobileWeatherCity">...</span>
+                  </h3>
+                  <span
+                    id="mobileWeatherCondition"
+                    class="text-xs text-xtextgray bg-white/10 px-2 py-0.5 rounded-full"
+                    >--</span
+                  >
+                </div>
+                <p class="text-2xl font-bold mt-1" id="mobileWeatherTemp">--°C</p>
+              </div>
+              <img
+                id="mobileWeatherIcon"
+                src=""
+                alt="icon"
+                class="w-12 h-12 bg-white/10 rounded-full p-2"
+              />
+            </div>
+          </div>
+
+          <!-- Mobile Recs (Horizontal Scroll) -->
+          <div id="mobileRecsSection" class="p-4 hidden">
+            <h3 class="font-bold text-sm text-xtext mb-3">Rekomendasi</h3>
+            <div id="mobileRecsList" class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+              <!-- Injected JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="p-4 space-y-4">
+          <div class="animate-pulse flex space-x-4">
+            <div class="rounded-full bg-xgray h-12 w-12"></div>
+            <div class="flex-1 space-y-4 py-1">
+              <div class="h-4 bg-xgray rounded w-3/4"></div>
+              <div class="space-y-2">
+                <div class="h-4 bg-xgray rounded"></div>
+                <div class="h-4 bg-xgray rounded w-5/6"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming View (Feed) -->
+        <div id="upcomingView" class="hidden">
+          <!-- Events will be injected here as tweets -->
+        </div>
+
+        <!-- Calendar View (Hidden by default) -->
+        <div id="calendarView" class="hidden p-4">
+          <!-- Calendar will be injected here -->
+        </div>
+
+        <!-- Empty State (handled in JS) -->
+      </main>
+
+      <!-- RIGHT SIDEBAR (WIDGETS) -->
+      <aside
+        class="hidden lg:block w-[350px] pl-8 py-4 space-y-6 h-screen sticky top-0 overflow-y-auto no-scrollbar"
+      >
+        <!-- Search -->
+        <div
+          class="bg-xgray rounded-full flex items-center px-4 py-3 focus-within:bg-black focus-within:ring-1 focus-within:ring-xblue group border border-transparent focus-within:border-xblue transition-colors"
+        >
+          <i class="fa-solid fa-magnifying-glass text-xtextgray group-focus-within:text-xblue"></i>
+          <input
+            type="text"
+            placeholder="Cari Acara"
+            class="bg-transparent border-none outline-none ml-3 text-xtext placeholder-xtextgray w-full"
+          />
+        </div>
+
+        <!-- Weather Widget -->
+        <div
+          id="dashboardWeather"
+          class="bg-xdark rounded-xl overflow-hidden border border-xgray hidden"
+        >
+          <div class="p-4">
+            <h3 class="font-bold text-xl mb-4">Cuaca di <span id="weatherCity">...</span></h3>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-3xl font-bold" id="weatherTemp">--°C</p>
+                <p class="text-xtextgray" id="weatherCondition">--</p>
+                <p class="text-xs text-xtextgray mt-1" id="weatherTime">--</p>
+              </div>
+              <img
+                id="weatherIcon"
+                src=""
+                alt="icon"
+                class="w-16 h-16 bg-white/10 rounded-full p-2"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Widget (Translated to 'Trends') -->
+        <div id="statsCards" class="bg-xdark rounded-xl border border-xgray overflow-hidden hidden">
+          <h3 class="font-bold text-xl p-4 pb-2">Statistik Acara</h3>
+
+          <!-- Injected via JS -->
+          <div class="p-4 pt-0 space-y-4 text-sm text-xtextgray">Memuat statistik...</div>
+        </div>
+
+        <!-- Recommendations Widget -->
+        <div
+          id="recommendationsSection"
+          class="bg-xdark rounded-xl border border-xgray overflow-hidden hidden"
+        >
+          <h3 class="font-bold text-xl p-4">Untuk diikuti (Rekomendasi)</h3>
+          <div id="recommendationsList" class="space-y-4 p-4 pt-0">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <div class="text-xs text-xtextgray leading-relaxed px-4">
+          <p>
+            Terms of Service Privacy Policy Cookie Policy Accessibility Ads info More © 2025
+            AcaraKita Corp.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- MODALS (Twitter Style Overlays) -->
+
+    <!-- Add Event Modal -->
+    <div
+      id="eventModal"
+      class="hidden fixed inset-0 bg-[#5b7083]/40 z-50 flex items-start justify-center pt-20"
+      onclick="closeModal()"
+    >
+      <div
+        class="bg-black w-full max-w-[600px] rounded-2xl shadow-2xl p-4"
+        onclick="event.stopPropagation()"
+      >
+        <div class="flex justify-between items-center mb-4 border-b border-xgray pb-2">
+          <button
+            onclick="closeModal()"
+            class="text-xtext hover:bg-white/10 p-2 rounded-full transition"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <h3 id="modalTitle" class="font-bold text-lg text-xtext">Posting Acara</h3>
+          <div class="w-8"></div>
+          <!-- Spacer -->
+        </div>
+
+        <form id="eventForm" class="space-y-4">
+          <div id="formError" class="hidden text-red-500 text-sm p-2 bg-red-500/10 rounded"></div>
+          <input type="hidden" id="eventId" />
+
+          <!-- Title -->
+          <input
+            type="text"
+            id="eventTitle"
+            placeholder="Judul Acara?"
+            class="w-full bg-transparent text-xl placeholder-xtextgray outline-none border-b border-xgray focus:border-xblue py-2"
+            required
+          />
+
+          <!-- Date -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xblue text-xs font-bold">Waktu</label>
+            <input
+              type="datetime-local"
+              id="eventDate"
+              class="w-full bg-transparent text-xtext outline-none border-b border-xgray focus:border-xblue py-2"
+              required
+            />
+          </div>
+
+          <!-- Place -->
+          <div class="flex items-center gap-2 text-xblue border-b border-xgray py-2">
+            <i class="fa-solid fa-location-dot"></i>
+            <input
+              type="text"
+              id="eventPlace"
+              placeholder="Tambahkan Lokasi"
+              class="w-full bg-transparent outline-none placeholder-xtextgray"
+            />
+          </div>
+
+          <!-- Notes -->
+          <textarea
+            id="eventNotes"
+            placeholder="Catatan acara..."
+            class="w-full bg-transparent text-xtext outline-none border-b border-xgray focus:border-xblue py-2 h-24 resize-none"
+          ></textarea>
+
+          <div class="flex justify-between items-center pt-4">
+            <div class="flex gap-4 text-xblue">
+              <i class="fa-regular fa-image cursor-pointer"></i>
+              <i class="fa-solid fa-list cursor-pointer"></i>
+            </div>
+            <button
+              type="submit"
+              id="submitEventBtn"
+              class="bg-xtext text-black font-bold px-5 py-2 rounded-full hover:bg-gray-200 transition"
+            >
+              Posting
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div
+      id="detailModal"
+      class="hidden fixed inset-0 bg-[#5b7083]/40 z-50 flex items-center justify-center p-4"
+      onclick="closeDetailModal()"
+    >
+      <div
+        class="bg-black w-full max-w-[600px] rounded-2xl shadow-2xl overflow-hidden border border-xgray max-h-[90vh]"
+        onclick="event.stopPropagation()"
+      >
+        <div
+          class="p-4 border-b border-xgray flex justify-between items-center sticky top-0 bg-black/80 backdrop-blur z-10 transition"
+        >
+          <h3 class="font-bold text-xl">Detail Acara</h3>
+          <button
+            onclick="closeDetailModal()"
+            class="text-xtext hover:bg-white/10 p-2 rounded-full"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div id="detailContent" class="p-0 overflow-y-auto max-h-[80vh]">
+          <!-- Content Injected Here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav
+      class="fixed bottom-0 w-full bg-black/90 backdrop-blur-md border-t border-xgray flex justify-around items-center py-3 z-50 md:hidden px-2"
+    >
+      <!-- Home -->
+      <button onclick="switchView('upcoming')" class="text-xtext flex flex-col items-center">
+        <i class="fa-solid fa-house text-xl"></i>
+      </button>
+
+      <!-- Calendar (NEW) -->
+      <button onclick="switchView('calendar')" class="text-xtextgray flex flex-col items-center">
+        <i class="fa-solid fa-calendar text-xl"></i>
+      </button>
+
+      <!-- Post (Center) -->
+      <button
+        onclick="showAddModal()"
+        class="text-white bg-xblue rounded-full w-12 h-12 flex items-center justify-center -mt-4 shadow-lg shadow-blue-500/30"
+      >
+        <i class="fa-solid fa-plus text-xl"></i>
+      </button>
+
+      <!-- Search -->
+      <a href="graphql.html" class="text-xtextgray flex flex-col items-center">
+        <i class="fa-solid fa-magnifying-glass text-xl"></i>
+      </a>
+
+      <!-- Profile -->
+      <a href="profile.html" class="text-xtextgray flex flex-col items-center">
+        <i class="fa-solid fa-user text-xl"></i>
+      </a>
+    </nav>
+
+    <script src="js/api.js"></script>
+    <script>
+      // TOAST NOTIFICATION SYSTEM
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div')
+        toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white text-sm font-bold shadow-lg transition-all duration-300 opacity-0 translate-y-4 z-[70] ${type === 'error' ? 'bg-red-500 shadow-red-500/20' : 'bg-xblue shadow-blue-500/20'}`
+        toast.textContent = message
+        document.body.appendChild(toast)
+
+        requestAnimationFrame(() => {
+          toast.className = toast.className.replace(
+            'opacity-0 translate-y-4',
+            'opacity-100 translate-y-0'
+          )
+        })
+
+        setTimeout(() => {
+          toast.className += ' opacity-0 translate-y-4'
+          setTimeout(() => toast.remove(), 300)
+        }, 3000)
+      }
+
+      // --- EXACT COPY OF ORIGINAL LOGIC START ---
+      let events = []
+      let stats = null
+      let currentView = 'upcoming'
+      let currentMonth = new Date()
+
+      async function loadData() {
+        try {
+          document.getElementById('loadingState').classList.remove('hidden')
+          // document.getElementById('statsCards').classList.add('hidden') // Stats are separate widget now
+          document.getElementById('upcomingView').classList.add('hidden')
+
+          const [eventsRes, statsRes] = await Promise.all([
+            eventsAPI.getAll(),
+            dashboardAPI.getStats(),
+          ])
+
+          events = eventsRes.data.sort((a, b) => new Date(a.date) - new Date(b.date))
+          stats = statsRes.data
+
+          document.getElementById('loadingState').classList.add('hidden')
+          document.getElementById('statsCards').classList.remove('hidden') // Show Widget
+
+          renderStats() // Update Widget
+
+          // CHECK URL PARAMS FOR CALENDAR VIEW
+          const urlParams = new URLSearchParams(window.location.search)
+          if (urlParams.get('view') === 'calendar') {
+            switchView('calendar')
+          } else {
+            renderView()
+          }
+
+          // Load weather independently
+          loadDashboardWeather()
+
+          // Load recommendations independently
+          loadRecommendations()
+        } catch (error) {
+          console.error('Gagal memuat data:', error)
+          showToast('Gagal memuat data', 'error')
+          document.getElementById('loadingState').classList.add('hidden')
+        }
+      }
+
+      async function loadDashboardWeather() {
+        try {
+          const weatherRes = await weatherAPI.getCurrent('Palu')
+
+          // Desktop
+          document.getElementById('weatherCity').textContent = weatherRes.city
+          document.getElementById('weatherTime').textContent = new Date(
+            weatherRes.local_time
+          ).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+          document.getElementById('weatherTemp').textContent = `${weatherRes.temp_c}°C`
+          document.getElementById('weatherCondition').textContent = weatherRes.condition.text
+          document.getElementById('weatherIcon').src = weatherRes.condition.icon
+
+          document.getElementById('dashboardWeather').classList.remove('hidden')
+
+          // Mobile
+          document.getElementById('mobileWeatherCity').textContent = weatherRes.city
+          document.getElementById('mobileWeatherTemp').textContent = `${weatherRes.temp_c}°C`
+          document.getElementById('mobileWeatherCondition').textContent = weatherRes.condition.text
+          document.getElementById('mobileWeatherIcon').src = weatherRes.condition.icon
+          document.getElementById('mobileWeather').classList.remove('hidden')
+        } catch (error) {
+          console.error('Gagal memuat cuaca dashboard:', error)
+        }
+      }
+
+      async function loadRecommendations() {
+        try {
+          const recommendations = await serpAPI.getRecommendations()
+          const container = document.getElementById('recommendationsList')
+          const section = document.getElementById('recommendationsSection')
+          // Mobile
+          const mobileContainer = document.getElementById('mobileRecsList')
+          const mobileSection = document.getElementById('mobileRecsSection')
+
+          if (!recommendations || recommendations.length === 0) {
+            section.classList.add('hidden')
+            mobileSection.classList.add('hidden')
+            return
+          }
+
+          const itemsHTML = recommendations
+            .map(
+              (event) => `
+        <div class="hover:bg-white/5 p-3 rounded-lg transition-colors cursor-pointer flex gap-4 min-w-[250px] border border-xgray md:border-none md:min-w-0">
+            <div class="w-12 h-12 bg-xgray rounded-lg overflow-hidden flex-shrink-0">
+                 ${
+                   event.image || event.thumbnail
+                     ? `<img src="${event.image || event.thumbnail}" alt="${event.title}" class="w-full h-full object-cover">`
+                     : `<div class="w-full h-full flex items-center justify-center text-gray-400">?</div>`
+                 }
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <div class="text-xtext font-bold text-sm truncate">${event.title}</div>
+                 <div class="text-xtextgray text-xs truncate">${event.date?.start_date || 'Segera'}</div>
+            </div>
+             <a href="${event.link}" target="_blank" class="px-3 py-1 bg-xtext text-black text-xs font-bold rounded-full h-fit self-center hover:bg-gray-200">
+                Lihat
+            </a>
+        </div>
+        `
+            )
+            .join('')
+
+          container.innerHTML = itemsHTML
+          mobileContainer.innerHTML = itemsHTML
+
+          section.classList.remove('hidden')
+          mobileSection.classList.remove('hidden')
+        } catch (error) {
+          console.error('Gagal memuat rekomendasi:', error)
+          document.getElementById('recommendationsSection').classList.add('hidden')
+        }
+      }
+
+      function switchView(view) {
+        currentView = view
+        document.getElementById('pageTitle').textContent =
+          view === 'upcoming' ? 'Beranda' : 'Kalender'
+
+        // Logic for highlighting active Tab handled in HTML classes generally, but we keep this function for logic switch
+
+        // Reset styles first
+        const upcomingBtn = document.getElementById('btnUpcoming')
+        const upcomingIcon = upcomingBtn.querySelector('i')
+        const upcomingText = upcomingBtn.querySelector('span')
+
+        const calendarBtn = document.getElementById('btnCalendar')
+        const calendarIcon = calendarBtn.querySelector('i')
+        const calendarText = calendarBtn.querySelector('span')
+
+        // Mobile Buttons - Sync Active State
+        const mobileNav = document.querySelector('nav.md\\:hidden')
+        if (mobileNav) {
+          const btns = mobileNav.querySelectorAll('button')
+          // Assuming order: Home(0 is <a on nav>), Post(2 is button on nav), Calendar(1 is button)
+          // Wait, I restructured nav in HTML above to be: Home(a or button), Calendar(button), Post(button), Search(a), Profile(a)
+          // The HTML above is: button, button, button, a, a for simplicity in index
+          const buttonsAndLinks = mobileNav.children
+          const mobHome = buttonsAndLinks[0].querySelector('i')
+          const mobCal = buttonsAndLinks[1].querySelector('i')
+
+          if (view === 'upcoming') {
+            mobHome.classList.remove('text-xtextgray')
+            mobHome.classList.add('text-xtext')
+            mobCal.classList.remove('text-xtext')
+            mobCal.classList.add('text-xtextgray')
+          } else {
+            mobCal.classList.remove('text-xtextgray')
+            mobCal.classList.add('text-xtext')
+            mobHome.classList.remove('text-xtext')
+            mobHome.classList.add('text-xtextgray')
+          }
+        }
+
+        if (view === 'upcoming') {
+          upcomingIcon.classList.remove('text-xtextgray')
+          upcomingIcon.classList.add('text-xtext')
+          upcomingText.classList.remove('text-xtextgray')
+          upcomingText.classList.add('font-bold', 'text-xtext')
+
+          calendarIcon.classList.add('text-xtextgray')
+          calendarIcon.classList.remove('text-xtext')
+          calendarText.classList.remove('font-bold', 'text-xtext')
+          calendarText.classList.add('text-xtextgray')
+        } else {
+          calendarIcon.classList.remove('text-xtextgray')
+          calendarIcon.classList.add('text-xtext')
+          calendarText.classList.remove('text-xtextgray')
+          calendarText.classList.add('font-bold', 'text-xtext')
+
+          upcomingIcon.classList.add('text-xtextgray')
+          upcomingIcon.classList.remove('text-xtext')
+          upcomingText.classList.remove('font-bold', 'text-xtext')
+          upcomingText.classList.add('text-xtextgray')
+        }
+
+        renderView()
+      }
+
+      function renderView() {
+        const recommendationsSection = document.getElementById('recommendationsSection')
+
+        if (currentView === 'upcoming') {
+          document.getElementById('upcomingView').classList.remove('hidden')
+          document.getElementById('calendarView').classList.add('hidden')
+          renderUpcoming()
+        } else {
+          document.getElementById('upcomingView').classList.add('hidden')
+          document.getElementById('calendarView').classList.remove('hidden')
+          renderCalendar()
+        }
+      }
+
+      function renderStats() {
+        // Adapted for Widgets
+        const statsCards = document.getElementById('statsCards')
+        // We want to keep the widget structure
+        const contentDiv =
+          statsCards.querySelector('div.space-y-4') || document.createElement('div')
+        contentDiv.className = 'p-4 pt-0 space-y-4'
+
+        contentDiv.innerHTML = `
+        <div class="flex justify-between text-xtext">
+            <span>Total Acara</span>
+            <span class="font-bold text-xtext">${stats.total_events}</span>
+        </div>
+        <div class="flex justify-between text-xtext">
+            <span>Hari Ini</span>
+            <span class="font-bold text-xtext">${stats.events_today}</span>
+        </div>
+        <div class="flex justify-between text-xtext">
+            <span>Minggu Ini</span>
+            <span class="font-bold text-xtext">${stats.events_this_week}</span>
+        </div>
+         <div class="flex justify-between text-xtext">
+            <span>Mendatang</span>
+            <span class="font-bold truncate max-w-[150px] text-right text-xblue">${stats.upcoming_event?.title || 'Tidak ada'}</span>
+        </div>
+    `
+        // Ensure it's appended if rebuilt
+        if (!statsCards.querySelector('div.space-y-4')) {
+          statsCards.appendChild(contentDiv)
+        }
+      }
+
+      function renderUpcoming() {
+        const upcomingView = document.getElementById('upcomingView')
+        const now = new Date()
+        const upcomingEvents = events.filter((e) => new Date(e.date) >= now)
+
+        if (upcomingEvents.length === 0) {
+          upcomingView.innerHTML = `
+        <div class="text-center py-12 border-b border-xgray">
+        <p class="text-xtextgray text-lg mb-2">Belum ada acara mendatang</p>
+        <button onclick="showAddModal()" class="text-xblue font-bold hover:underline">
+            Posting acara pertama Anda
+        </button>
+        </div>
+    `
+          return
+        }
+
+        // Sort by date just in case
+        upcomingEvents.sort((a, b) => new Date(b.date) - new Date(a.date)) // Newest first like Twitter? Or oldest upcoming? Let's do nearest Upcoming (asc) for events usually
+        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date))
+
+        upcomingView.innerHTML = upcomingEvents
+          .map(
+            (event) => `
+        <article class="p-4 border-b border-xgray hover:bg-[#080808] transition-colors cursor-pointer" onclick="viewEvent('${event._id}')">
+        <div class="flex space-x-3">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+                     ${event.title.charAt(0).toUpperCase()}
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                 <div class="flex items-center justify-between">
+                     <div class="flex items-center gap-1 text-xtextgray text-sm">
+                         <span class="font-bold text-xtext text-base truncate">${event.title}</span>
+                         <span>@acaranya</span>
+                         <span>·</span>
+                         <span>${new Date(event.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                     </div>
+                     <div class="flex gap-2" onclick="event.stopPropagation()">
+                         <button onclick="deleteEvent('${event._id}')" class="text-xtextgray hover:text-red-500 transition px-2"><i class="fa-solid fa-trash"></i></button>
+                     </div>
+                 </div>
+
+                 <p class="text-xtext mt-1 text-base">
+                     ${event.notes || 'Tidak ada catatan...'}
+                 </p>
+                 
+                 <div class="mt-3 border border-xgray rounded-2xl overflow-hidden">
+                      <div class="bg-xgray/30 p-3">
+                          <div class="flex items-center gap-2 text-xtextgray text-sm mb-1">
+                              <i class="fa-solid fa-location-dot"></i>
+                              <span>${event.place || 'Lokasi belum diatur'}</span>
+                          </div>
+                          <div class="flex items-center gap-2 text-xtextgray text-sm">
+                               <i class="fa-regular fa-clock"></i>
+                               <span>${new Date(event.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</span>
+                          </div>
+                      </div>
+                 </div>
+
+                 <div class="flex justify-between mt-3 text-xtextgray max-w-md w-full" onclick="event.stopPropagation()">
+                     <button onclick="editEvent('${event._id}')" class="group flex items-center gap-2 hover:text-xblue transition">
+                         <div class="p-2 rounded-full group-hover:bg-xblue/10"><i class="fa-regular fa-pen-to-square"></i></div>
+                     </button>
+                      <button class="group flex items-center gap-2 hover:text-green-500 transition">
+                         <div class="p-2 rounded-full group-hover:bg-green-500/10"><i class="fa-solid fa-retweet"></i></div>
+                     </button>
+                      <button class="group flex items-center gap-2 hover:text-pink-500 transition">
+                         <div class="p-2 rounded-full group-hover:bg-pink-500/10"><i class="fa-regular fa-heart"></i></div>
+                     </button>
+                       <button class="group flex items-center gap-2 hover:text-xblue transition">
+                         <div class="p-2 rounded-full group-hover:bg-xblue/10"><i class="fa-solid fa-chart-simple"></i></div>
+                     </button>
+                 </div>
+            </div>
+        </div>
+        </article>
+    `
+          )
+          .join('')
+      }
+
+      async function viewEvent(id) {
+        try {
+          const response = await eventsAPI.getById(id)
+          const event = response.data
+
+          const detailContent = document.getElementById('detailContent')
+
+          let htmlContent = `
+        <div class="px-4 pb-4">
+            <!-- Header User Info -->
+            <div class="flex gap-3 mb-4">
+                 <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+                     ${event.title.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                     <p class="font-bold text-xtext">${event.title}</p>
+                     <p class="text-xtextgray text-sm">@acaranya</p>
+                </div>
+            </div>
+            
+            <!-- Tweet Body -->
+            <p class="text-xl text-xtext mb-4 leading-normal">
+                ${event.notes || 'Tidak ada catatan khusus untuk acara ini.'} <br>
+                <span class="text-xblue">#AcaraKita #${event.title.replace(/\s/g, '')}</span>
+            </p>
+
+            <!-- Event Card Info -->
+            <div class="border border-xgray rounded-2xl overflow-hidden mb-4">
+                <div class="bg-xgray/20 p-4">
+                    <p class="font-bold text-xtext text-lg mb-1">${event.place || 'Lokasi Online'}</p>
+                    <p class="text-xtextgray">
+                         ${new Date(event.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                         • 
+                         ${new Date(event.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-b border-xgray py-3 mb-4">
+                 <p class="text-xtextgray text-sm">
+                     <span class="text-xtext font-bold">14</span> Retweets 
+                     <span class="ml-4 text-xtext font-bold">58</span> Likes
+                 </p>
+            </div>
+            
+            <!-- Weather Section (if available) -->
+            <div id="weatherContainer" class="mt-4">
+                <p class="text-xtextgray mb-2 text-sm">Prakiraan Cuaca Lokal</p>
+                <div class="animate-pulse h-16 bg-xgray/30 rounded-xl"></div>
+            </div>
+        </div>
+    `
+
+          detailContent.innerHTML = htmlContent
+          document.getElementById('detailModal').classList.remove('hidden')
+
+          // Fetch Weather
+          try {
+            const city = event.place || 'Palu'
+            const weatherRes = await weatherAPI.getForDate(
+              'Palu',
+              new Date(event.date).toISOString().split('T')[0]
+            )
+            const wContainer = document.getElementById('weatherContainer')
+            wContainer.innerHTML = `
+             <div class="flex items-center gap-4 bg-[#16181c] p-4 rounded-xl border border-xgray">
+                 <img src="${weatherRes.condition.icon}" class="w-10 h-10">
+                 <div>
+                     <p class="text-xtext font-bold text-lg">${weatherRes.temp_c}°C - ${weatherRes.condition.text}</p>
+                     <p class="text-xtextgray text-xs">Palu, ID</p>
+                 </div>
+             </div>
+        `
+          } catch (e) {
+            document.getElementById('weatherContainer').innerHTML =
+              '<p class="text-red-500 text-sm">Gagal memuat cuaca.</p>'
+          }
+        } catch (error) {
+          console.error(error)
+          showToast('Gagal memuat detail acara', 'error')
+        }
+      }
+
+      function closeDetailModal() {
+        document.getElementById('detailModal').classList.add('hidden')
+      }
+
+      function showAddModal() {
+        document.getElementById('modalTitle').textContent = 'Posting Acara'
+        document.getElementById('eventForm').reset()
+        document.getElementById('eventId').value = ''
+        document.getElementById('formError').classList.add('hidden')
+        document.getElementById('eventModal').classList.remove('hidden')
+      }
+
+      function editEvent(id) {
+        const event = events.find((e) => e._id === id)
+        if (!event) return
+
+        document.getElementById('modalTitle').textContent = 'Edit Acara'
+        document.getElementById('eventId').value = event._id
+        document.getElementById('eventTitle').value = event.title
+        document.getElementById('eventDate').value = new Date(event.date).toISOString().slice(0, 16)
+        document.getElementById('eventPlace').value = event.place || ''
+        document.getElementById('eventNotes').value = event.notes || ''
+        document.getElementById('formError').classList.add('hidden')
+        document.getElementById('eventModal').classList.remove('hidden')
+      }
+
+      function closeModal() {
+        document.getElementById('eventModal').classList.add('hidden')
+      }
+
+      async function deleteEvent(id) {
+        if (!confirm('Hapus acara ini?')) return
+
+        try {
+          await eventsAPI.delete(id)
+          await loadData()
+          showToast('Acara berhasil dihapus')
+        } catch (error) {
+          showToast('Gagal menghapus acara: ' + error.message, 'error')
+        }
+      }
+
+      document.getElementById('eventForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        const formError = document.getElementById('formError')
+        const submitBtn = document.getElementById('submitEventBtn')
+        formError.classList.add('hidden')
+
+        const id = document.getElementById('eventId').value
+        const eventData = {
+          title: document.getElementById('eventTitle').value.trim(),
+          date: document.getElementById('eventDate').value,
+          place: document.getElementById('eventPlace').value.trim() || undefined,
+          notes: document.getElementById('eventNotes').value.trim() || undefined,
+        }
+
+        submitBtn.disabled = true
+        submitBtn.textContent = 'Posting...'
+
+        try {
+          if (id) {
+            await eventsAPI.update(id, eventData)
+          } else {
+            await eventsAPI.create(eventData)
+          }
+          closeModal()
+          await loadData()
+          showToast(id ? 'Acara diperbarui!' : 'Acara diposting!')
+        } catch (error) {
+          formError.textContent = error.message || 'Gagal menyimpan acara'
+          formError.classList.remove('hidden')
+        } finally {
+          submitBtn.disabled = false
+          submitBtn.textContent = 'Posting'
+        }
+      })
+
+      async function renderCalendar() {
+        const calendarView = document.getElementById('calendarView')
+        const year = currentMonth.getFullYear()
+        const month = currentMonth.getMonth()
+        const firstDay = new Date(year, month, 1)
+        const lastDay = new Date(year, month + 1, 0)
+        const daysInMonth = lastDay.getDate()
+        const startingDayOfWeek = firstDay.getDay()
+
+        let holidays = []
+        try {
+          const holidaysRes = await holidaysAPI.get(year, month + 1)
+          if (Array.isArray(holidaysRes)) {
+            holidays = holidaysRes
+          }
+        } catch (error) {
+          console.error('Failed to fetch holidays:', error)
+        }
+
+        const getEventsForDate = (date) => {
+          return events.filter((event) => {
+            const eventDate = new Date(event.date)
+            return eventDate.toDateString() === date.toDateString()
+          })
+        }
+
+        const getHolidayForDate = (day) => {
+          const currentMonthStr = String(month + 1).padStart(2, '0')
+          const currentDayStr = String(day).padStart(2, '0')
+          const dateString = `${year}-${currentMonthStr}-${currentDayStr}`
+
+          return holidays.find((h) => h.date === dateString)
+        }
+
+        // Responsive Calendar HTML
+        // Mobile: lighter padding, smaller fonts, smaller height
+        let calendarHTML = `
+    <div class="border border-xgray rounded-xl p-2 md:p-4">
+        <div class="flex items-center justify-between mb-4 md:mb-6">
+        <button onclick="previousMonth()" class="p-2 hover:bg-white/10 rounded-full transition"><i class="fa-solid fa-chevron-left"></i></button>
+        <h2 class="text-lg md:text-xl font-bold text-xtext">${currentMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</h2>
+        <button onclick="nextMonth()" class="p-2 hover:bg-white/10 rounded-full transition"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="grid grid-cols-7 gap-0.5 md:gap-1">
+        ${['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+          .map(
+            (day) =>
+              `<div class="text-center font-bold text-xtextgray py-2 text-[10px] md:text-sm">${day}</div>`
+          )
+          .join('')}
+    `
+
+        for (let i = 0; i < startingDayOfWeek; i++) {
+          calendarHTML += '<div class="p-1 md:p-2"></div>'
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(year, month, day)
+          const dayEvents = getEventsForDate(date)
+          const holiday = getHolidayForDate(day)
+          const isToday = date.toDateString() === new Date().toDateString()
+          const isHoliday = !!holiday
+
+          calendarHTML += `
+        <div class="min-h-[60px] md:min-h-24 border border-xgray rounded-lg p-1 md:p-2 ${
+          isToday
+            ? 'bg-xblue/10 border-xblue'
+            : isHoliday
+              ? 'bg-red-900/10 border-red-900/30'
+              : 'hover:bg-white/5'
+        } transition relative group flex flex-col">
+        
+        <div class="flex justify-between items-start mb-0.5">
+            <div class="font-bold text-[10px] md:text-sm ${isHoliday ? 'text-red-500' : 'text-xtext'}">${day}</div>
+            ${isHoliday ? `<span class="hidden md:inline text-[9px] text-red-400 font-medium text-right leading-tight max-w-[70%]">${holiday.localName}</span>` : ''}
+        </div>
+        
+        <div class="space-y-0.5 md:space-y-1 mt-0 flex-1 overflow-hidden">
+             <!-- Mobile: Dots for events if truncated? Or just tiny text -->
+            ${dayEvents
+              .map(
+                (event) => `
+            <div onclick="viewEvent('${event._id}')" class="text-[8px] md:text-[10px] bg-xblue text-white px-1 py-0.5 rounded cursor-pointer hover:bg-blue-600 truncate font-bold leading-tight" title="${event.title}">
+                ${event.title}
+            </div>
+            `
+              )
+              .join('')}
+        </div>
+        </div>
+        `
+        }
+
+        calendarHTML += '</div></div>'
+        calendarView.innerHTML = calendarHTML
+      }
+
+      function previousMonth() {
+        currentMonth.setMonth(currentMonth.getMonth() - 1)
+        renderCalendar()
+      }
+
+      function nextMonth() {
+        currentMonth.setMonth(currentMonth.getMonth() + 1)
+        renderCalendar()
+      }
+
+      function logout() {
+        localStorage.removeItem('token')
+        window.location.href = 'login.html'
+      }
+
+      // INITIAL LOAD
+      loadData()
+    </script>
+  </body>
+</html>

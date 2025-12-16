@@ -1,0 +1,1281 @@
+openapi: 3.0.0
+info:
+  title: AcaraKita API
+  description: |
+    Dokumentasi API lengkap untuk aplikasi AcaraKita - platform manajemen event pribadi.
+
+    API ini menyediakan fitur untuk manajemen event, profil pengguna, dashboard statistik, prakiraan cuaca, informasi hari libur nasional, serta rekomendasi event menarik di Indonesia. 
+    Semua endpoint yang memerlukan autentikasi menggunakan JWT (JSON Web Token) yang dikirim melalui header Authorization.
+
+    Fitur Utama:
+    - Autentikasi User dengan JWT
+    - Manajemen Event
+    - Profil Pengguna
+    - Dashboard Statistik (Event hari ini, minggu ini, total)
+    - Prakiraan Cuaca berdasarkan tanggal dan lokasi
+    - Informasi Hari Libur Nasional Indonesia
+    - Rekomendasi Event Menarik di Indonesia
+    - GraphQL Support untuk query event dengan filter
+
+    Pembuat:
+    - Muh. Farizzi
+    - Made Bagas Mardiana
+    - Muhammad Rizki
+    - Kavrian Syah
+    - Neneng Eka Arya Komala
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3333
+    description: Development Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Masukkan JWT token Anda di sini.
+
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '507f1f77bcf86cd799439011'
+        name:
+          type: string
+          example: 'Muh. Farizzi'
+        email:
+          type: string
+          format: email
+          example: 'farizzi@example.com'
+        birthday:
+          type: string
+          format: date
+          nullable: true
+          example: '1990-01-01'
+        phone:
+          type: string
+          nullable: true
+          example: '08123456789'
+        address:
+          type: string
+          nullable: true
+          example: 'Jl. Sudirman No. 1'
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '507f1f77bcf86cd799439011'
+        name:
+          type: string
+          example: 'Muh. Farizzi'
+        email:
+          type: string
+          format: email
+          example: 'farizzi@example.com'
+        password:
+          type: string
+          example: '$2b$10$...'
+        birthday:
+          type: string
+          format: date
+          nullable: true
+          example: '1990-01-01'
+        phone:
+          type: string
+          nullable: true
+          example: '08123456789'
+        address:
+          type: string
+          nullable: true
+          example: 'Jl. Sudirman No. 1'
+        __v:
+          type: integer
+          example: 0
+    Event:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '507f1f77bcf86cd799439011'
+        title:
+          type: string
+          example: 'Acara Kita'
+        date:
+          type: string
+          format: date-time
+          example: '2024-12-25T10:00:00.000Z'
+        place:
+          type: string
+          example: 'Kantor Kita'
+        notes:
+          type: string
+          example: 'Acara Kita Bersama'
+        userId:
+          type: string
+          example: '507f1f77bcf86cd799439012'
+        __v:
+          type: integer
+          example: 0
+
+    UpcomingEvent:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Acara Kita'
+        date:
+          type: string
+          format: date-time
+          example: '2024-12-25T10:00:00.000Z'
+        description:
+          type: string
+          example: 'Acara Kita Bersama'
+
+    DashboardStats:
+      type: object
+      properties:
+        upcoming_event:
+          $ref: '#/components/schemas/UpcomingEvent'
+          nullable: true
+        events_today:
+          type: integer
+          example: 2
+        events_this_week:
+          type: integer
+          example: 5
+        total_events:
+          type: integer
+          example: 15
+
+    WeatherForecast:
+      type: object
+      properties:
+        temp_c:
+          type: number
+          example: 30.5
+        condition:
+          type: object
+          properties:
+            text:
+              type: string
+              example: 'Sunny'
+            icon:
+              type: string
+              example: '//cdn.weatherapi.com/weather/64x64/day/113.png'
+        date:
+          type: string
+          example: '2024-12-25'
+        hourly:
+          type: array
+          items:
+            type: object
+          description: 'Data cuaca per jam'
+
+    CurrentWeather:
+      type: object
+      properties:
+        temp_c:
+          type: number
+          example: 30.5
+        condition:
+          type: object
+          properties:
+            text:
+              type: string
+              example: 'Sunny'
+            icon:
+              type: string
+              example: '//cdn.weatherapi.com/weather/64x64/day/113.png'
+        humidity:
+          type: integer
+          example: 75
+        wind_kph:
+          type: number
+          example: 10.5
+        city:
+          type: string
+          example: 'Palu'
+        local_time:
+          type: string
+          example: '2024-12-25 10:00'
+
+    Holiday:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2024-12-25'
+        localName:
+          type: string
+          example: 'Hari Raya Natal'
+        name:
+          type: string
+          example: 'Christmas Day'
+        countryCode:
+          type: string
+          example: 'ID'
+        fixed:
+          type: boolean
+          example: true
+        global:
+          type: boolean
+          example: true
+        counties:
+          type: array
+          items:
+            type: string
+          nullable: true
+        launchYear:
+          type: integer
+          nullable: true
+        types:
+          type: array
+          items:
+            type: string
+          example: ['Public']
+
+    Recommendation:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Music Concert'
+        date:
+          type: object
+          properties:
+            start_date:
+              type: string
+              example: 'Dec 30'
+            when:
+              type: string
+              example: 'Sat, Dec 30, 7 PM'
+        address:
+          type: array
+          items:
+            type: string
+          example: ['Jakarta Convention Center', 'Jakarta']
+        link:
+          type: string
+          example: 'https://google.com/...'
+        thumbnail:
+          type: string
+          example: 'https://...'
+        description:
+          type: string
+          example: 'Event description...'
+        image:
+          type: string
+          example: 'https://...'
+        ticket_info:
+          type: array
+          items:
+            type: object
+        venue:
+          type: object
+          properties:
+            name:
+              type: string
+            link:
+              type: string
+        event_location_map:
+          type: object
+          properties:
+            image:
+              type: string
+            link:
+              type: string
+
+paths:
+  /auth/register:
+    post:
+      summary: Registrasi User Baru
+      description: Mendaftarkan pengguna baru ke dalam sistem dengan nama, email, dan password.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  example: 'Farizzi'
+                email:
+                  type: string
+                  format: email
+                  example: 'farizzi@mailxample.com'
+                password:
+                  type: string
+                  minLength: 8
+                  example: 'password123'
+                password_confirmation:
+                  type: string
+                  example: 'password123'
+      responses:
+        '201':
+          description: Registrasi berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                  message:
+                    type: string
+                    example: 'Registrasi berhasil'
+        '400':
+          description: Email sudah digunakan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email sudah digunakan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Registrasi Gagal'
+
+  /auth/login:
+    post:
+      summary: Login User
+      description: Otentikasi pengguna dengan email dan password untuk mendapatkan token akses (JWT).
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'farizzi@mailxample.com'
+                password:
+                  type: string
+                  example: 'password123'
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                  message:
+                    type: string
+                    example: 'Login berhasil'
+        '401':
+          description: Email atau password salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email atau Password salah'
+
+  /api/events:
+    get:
+      summary: List Semua Event
+      description: Mengambil daftar semua event yang telah dibuat oleh pengguna yang sedang login.
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mendapatkan list event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  message:
+                    type: string
+                    example: 'Event ditemukan'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal mengambil event'
+
+    post:
+      summary: Buat Event Baru
+      description: Membuat event baru dengan judul, tanggal, lokasi, dan catatan.
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - date
+              properties:
+                title:
+                  type: string
+                  minLength: 3
+                  example: 'Peresmian Masjid'
+                date:
+                  type: string
+                  format: date-time
+                  example: '2024-12-30T09:00:00'
+                place:
+                  type: string
+                  example: 'Masjid Raya'
+                notes:
+                  type: string
+                  example: 'Peresmian Masjid Raya'
+      responses:
+        '201':
+          description: Event berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Event'
+                  message:
+                    type: string
+                    example: 'Event berhasil dibuat'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Validasi error atau gagal membuat event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal membuat event'
+
+  /api/events/{id}:
+    get:
+      summary: Detail Event
+      description: Mengambil informasi detail mengenai satu event spesifik berdasarkan ID-nya.
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID Event
+      responses:
+        '200':
+          description: Berhasil mendapatkan detail event
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Event'
+                  message:
+                    type: string
+                    example: 'Event ditemukan'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: Event tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Event tidak ada'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal mengambil event'
+
+    put:
+      summary: Update Event
+      description: Memperbarui informasi event yang sudah ada berdasarkan ID-nya.
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID Event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 3
+                  example: 'Makan Siang'
+                date:
+                  type: string
+                  format: date-time
+                  example: '2025-12-25 12:30'
+                place:
+                  type: string
+                  example: 'Kantin'
+                notes:
+                  type: string
+                  example: 'Bawa uang lebih'
+      responses:
+        '200':
+          description: Event berhasil diupdate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Event'
+                  message:
+                    type: string
+                    example: 'Event berhasil diperbarui'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: Event tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Event tidak ditemukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal memperbarui event'
+
+    delete:
+      summary: Hapus Event
+      description: Menghapus event tertentu dari sistem secara permanen.
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID Event
+      responses:
+        '200':
+          description: Event berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Event berhasil dihapus'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: Event tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Event tidak ditemukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal menghapus event'
+
+  /api/dashboard:
+    get:
+      summary: Dashboard Statistik
+      description: Menampilkan ringkasan statistik seperti event yang akan datang, event hari ini, dan total event.
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mendapatkan data dashboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardStats'
+                  message:
+                    type: string
+                    example: 'Dashboard ditampilkan'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal mengambil data dashboard'
+
+  /api/profile:
+    get:
+      summary: Lihat Profil
+      description: Mengambil data profil lengkap dari pengguna yang sedang login.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mendapatkan profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+                  message:
+                    type: string
+                    example: 'Berhasil'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: Profile tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Profile tidak ada'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal mengambil profile'
+
+    put:
+      summary: Update Profil
+      description: Memperbarui informasi profil pengguna seperti nama, tanggal lahir, telepon, dan alamat.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  example: 'Farizzi'
+                birthday:
+                  type: string
+                  format: date
+                  example: '2000-05-29'
+                phone:
+                  type: string
+                  minLength: 10
+                  example: '+6213456789'
+                address:
+                  type: string
+                  example: 'Jalan Untad'
+      responses:
+        '200':
+          description: Profile berhasil diupdate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+                  message:
+                    type: string
+                    example: 'Berhasil'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: Profile tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Profile tidak ada'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal memperbarui profile'
+
+    delete:
+      summary: Hapus Akun
+      description: Menghapus akun pengguna dan seluruh datanya dari sistem secara permanen.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Akun berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Akun berhasil dihapus'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User tidak ditemukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal menghapus akun'
+
+  /api/profile/reset-password:
+    post:
+      summary: Ubah Password
+      description: Mengganti password pengguna dengan memverifikasi password lama terlebih dahulu.
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+                - newPassword_confirmation
+              properties:
+                currentPassword:
+                  type: string
+                  example: 'password123'
+                newPassword:
+                  type: string
+                  minLength: 8
+                  example: 'password12345'
+                newPassword_confirmation:
+                  type: string
+                  example: 'password12345'
+      responses:
+        '200':
+          description: Password berhasil direset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Password berhasil diubah'
+        '400':
+          description: Password saat ini salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Password saat ini salah'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '404':
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User tidak ditemukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Gagal mengubah password'
+
+  /api/weather:
+    get:
+      summary: Lihat Prakiraan Cuaca
+      description: Mendapatkan data prakiraan cuaca untuk lokasi dan tanggal tertentu.
+      tags:
+        - Weather
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          required: true
+          description: Date for forecast (YYYY-MM-DD)
+        - in: query
+          name: city
+          schema:
+            type: string
+          required: false
+          description: City name (default Palu)
+      responses:
+        '200':
+          description: Berhasil mendapatkan data cuaca
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherForecast'
+        '400':
+          description: Parameter tanggal tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Tanggal diperlukan'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Internal server error'
+
+  /api/weather/current:
+    get:
+      summary: Lihat Cuaca Saat Ini
+      description: Mendapatkan informasi kondisi cuaca terkini di kota yang ditentukan.
+      tags:
+        - Weather
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: city
+          schema:
+            type: string
+          required: false
+          description: City name (default Palu)
+      responses:
+        '200':
+          description: Berhasil mendapatkan cuaca saat ini
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentWeather'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Internal server error'
+
+  /api/holidays:
+    get:
+      summary: Lihat Hari Libur
+      description: Mengambil daftar hari libur nasional berdasarkan tahun dan kode negara.
+      tags:
+        - Holidays
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+          required: false
+          description: Year (default current year)
+        - in: query
+          name: month
+          schema:
+            type: integer
+          required: false
+          description: Month 1-12 (default current month)
+        - in: query
+          name: country
+          schema:
+            type: string
+          required: false
+          description: Country Code (default ID)
+      responses:
+        '200':
+          description: Berhasil mendapatkan hari libur
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Holiday'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Internal server error'
+
+  /api/recommendations:
+    get:
+      summary: Lihat Rekomendasi Event
+      description: Mendapatkan rekomendasi event menarik yang sedang berlangsung atau akan datang di Indonesia.
+      tags:
+        - Recommendations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mendapatkan rekomendasi event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recommendation'
+        '401':
+          description: Unauthorized - Token diperlukan atau token salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Token diperlukan'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Internal server error'
+
+  /api/graphql:
+    post:
+      summary: Endpoint GraphQL
+      description: Endpoint fleksibel untuk melakukan query data spesifik menggunakan bahasa query GraphQL.
+      tags:
+        - GraphQL
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  example: '{ myEvents { id title date place notes userId} }'
+                variables:
+                  type: object
+      responses:
+        '200':
+          description: GraphQL Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      myEvents:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: '692f777c80a1b78ac42a15a0'
+                            title:
+                              type: string
+                            date:
+                              type: string
+                              format: date
+                              example: '2025-02-02'
+                            place:
+                              type: string
+                              example: 'Vatulemo'
+                            notes:
+                              type: string
+                              example: 'konser amal'
+                            userId:
+                              type: string
+                              example: '69295be716215fe093c99aff'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string

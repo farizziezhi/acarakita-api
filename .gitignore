@@ -41,3 +41,6 @@ coverage/
 frontend-next/.next/
 frontend-next/node_modules/
 frontend-next/out/
+
+# TypeScript incremental cache
+frontend-next/tsconfig.tsbuildinfo

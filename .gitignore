@@ -34,3 +34,10 @@ Desktop.ini
 *.tmp
 *.log
 coverage/
+
+# Claude and Superpowers
+.claude/
+.superpowers/
+frontend-next/.next/
+frontend-next/node_modules/
+frontend-next/out/

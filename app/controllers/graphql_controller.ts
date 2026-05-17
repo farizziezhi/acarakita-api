@@ -8,7 +8,7 @@ export default class GraphqlController {
       const { query, variables } = request.body()
       const user = (request as any).user
 
-      const result = await server.executeOperation({ query, variables }, { contextValue: { user } })
+      const result = await server.executeOperation({ query, variables }, { contextValue: { user } } as any)
 
       return response.json(result)
     } catch (error) {
